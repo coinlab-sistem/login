@@ -647,7 +647,7 @@
         withdraw_error: "Введите корректную сумму и адрес.",
         subscription_error: "Ошибка: Для вывода средств нужна активная подписка.",
         subscription_notice: "Пожалуйста, приобретите подписку для включения вывода средств.",
-        pay_subscription: "Оплатить подписку (100 USDT/неделя)"
+        pay_subscription: "Оплатить подписку (20 USDT/неделя)"
       },
       kz: {
         current_balance: "Ағымдағы баланс",
@@ -708,7 +708,7 @@
         withdraw_error: "Дұрыс сома мен мекенжайды енгізіңіз.",
         subscription_error: "Қате: Қаражатты шығару үшін белсенді жазылым қажет.",
         subscription_notice: "Шығаруды қосу үшін жазылым сатып алыңыз.",
-        pay_subscription: "Жазылымды төлеу (100 USDT/апта)"
+        pay_subscription: "Жазылымды төлеу (20 USDT/апта)"
       },
       en: {
         current_balance: "Current balance",
@@ -769,7 +769,7 @@
         withdraw_error: "Enter a valid amount and address.",
         subscription_error: "Error: To withdraw your funds, you need an active subscription.",
         subscription_notice: "Please purchase a subscription to enable withdrawals.",
-        pay_subscription: "Pay Subscription (100 USDT/week)"
+        pay_subscription: "Pay Subscription (20 USDT/week)"
       },
       es: {
         current_balance: "Saldo actual",
@@ -830,7 +830,7 @@
         withdraw_error: "Ingrese un monto y dirección válidos.",
         subscription_error: "Error: Para retirar sus fondos, necesita una suscripción activa.",
         subscription_notice: "Por favor, compre una suscripción para habilitar retiros.",
-        pay_subscription: "Pagar Suscripción (100 USDT/semana)"
+        pay_subscription: "Pagar Suscripción (20 USDT/semana)"
       },
       fr: {
         current_balance: "Solde actuel",
@@ -891,7 +891,7 @@
         withdraw_error: "Entrez un montant et une adresse valides.",
         subscription_error: "Erreur : Pour retirer vos fonds, vous avez besoin d'un abonnement actif.",
         subscription_notice: "Veuillez acheter un abonnement pour activer les retraits.",
-        pay_subscription: "Payer l'Abonnement (100 USDT/semaine)"
+        pay_subscription: "Payer l'Abonnement (20 USDT/semaine)"
       },
       it: {
         current_balance: "Saldo attuale",
@@ -952,7 +952,7 @@
         withdraw_error: "Inserisci un importo e un indirizzo validi.",
         subscription_error: "Errore: Per prelevare i tuoi fondi, hai bisogno di un abbonamento attivo.",
         subscription_notice: "Per favore, acquista un abbonamento per abilitare i prelievi.",
-        pay_subscription: "Paga Abbonamento (100 USDT/settimana)"
+        pay_subscription: "Paga Abbonamento (20 USDT/settimana)"
       },
       ko: {
         current_balance: "현재 잔액",
@@ -1013,7 +1013,7 @@
         withdraw_error: "유효한 금액과 주소를 입력하세요.",
         subscription_error: "오류: 자금을 인출하려면 활성 구독이 필요합니다.",
         subscription_notice: "인출을 활성화하려면 구독을 구매하세요.",
-        pay_subscription: "구독 결제 (100 USDT/주)"
+        pay_subscription: "구독 결제 (20 USDT/주)"
       },
       ja: {
         current_balance: "現在の残高",
@@ -1074,7 +1074,7 @@
         withdraw_error: "有効な金額とアドレスを入力してください。",
         subscription_error: "エラー：資金を引き出すには、アクティブなサブスクリプションが必要です。",
         subscription_notice: "引き出しを有効にするには、サブスクリプションを購入してください。",
-        pay_subscription: "サブスクリプションを支払う (100 USDT/週)"
+        pay_subscription: "サブスクリプションを支払う (20 USDT/週)"
       }
     };
 
@@ -1367,13 +1367,13 @@
           </div>
         </div>
         <button class="payment-btn" id="paySubscription">
-          💳 ${translations[state.language].pay_subscription || 'Pay Subscription (100 USDT/week)'}
+          💳 ${translations[state.language].pay_subscription || 'Pay Subscription (20 USDT/week)'}
         </button>
       `;
       
       // Add click handler for the payment button
       $('#paySubscription').addEventListener('click', () => {
-        window.open('https://nowpayments.io/payment/?iid=4733269114', '_blank');
+        window.open('https://nowpayments.io/payment/?iid=5247322727', '_blank');
       });
     });
 
@@ -1411,9 +1411,9 @@
       button.addEventListener('click', (e) => {
         const plan = e.target.getAttribute('data-plan');
         const planUrls = {
-          basic: 'https://nowpayments.io/payment/?iid=4733269114',
-          pro: 'https://nowpayments.io/payment/?iid=4696682747', 
-          vip: 'https://nowpayments.io/payment/?iid=5638459586'
+          basic: 'https://nowpayments.io/payment/?iid=4852595706',
+          pro: 'https://nowpayments.io/payment/?iid=4296866337', 
+          vip: 'https://nowpayments.io/payment/?iid=5247322727'
         };
         
         // Открываем ссылку для оплаты в новом окне
