@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CoinLab AI</title>
+  <!-- Favicon (логотип в адресной строке) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236ee7ff'><path d='M12 2l2.6 5.3L20.5 8 16 12l1 6-5-2.8L7 18l1-6-4.5-4 5.9-.7L12 2z'/></svg>">
+  <style>
+    :root{
+      --bg:#0b1020;
+      --card:#121a33;
+      --muted:#7b8ab8;
+      --text:#e6ecff;
+      --accent:#6ee7ff;
+      --accent-2:#7cffb2;
+      --danger:#ff6b6b;
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      background: radial-gradient(1200px 800px at 80% -10%, rgba(110,231,255,.15), transparent),
+                  radial-gradient(900px 700px at -20% 110%, rgba(124,255,178,.12), transparent),
+                  var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      display:flex; flex-direction:column;
+    }
+    header{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(10px);
+      background: rgba(11,16,32,.6);
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .wrap{ max-width:1100px; margin:0 auto; padding:16px; }
+    .topbar{ display:flex; align-items:center; gap:12px; }
+    .brand{ display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.3px; }
+    .brand svg{ width:24px; height:24px; }
+    .spacer{ flex:1; }
+    .pill{
+      font-size:12px; color:#0b1020; background:linear-gradient(135deg, var(--accent), var(--accent-2));
+      padding:6px 10px; border-radius:999px; font-weight:700;
+      box-shadow: var(--shadow);
+    }
+    .avatar{ width:38px; height:38px; border-radius:50%; overflow:hidden; border:2px solid rgba(255,255,255,.15); display:grid; place-items:center; background:#0f1530; }
+    .avatar img{ width:100%; height:100%; object-fit:cover; }
+    .name{ font-weight:600; }
+    .btn{ border:0; border-radius:12px; padding:10px 14px; color:#0b1020; background:var(--accent); font-weight:700; cursor:pointer; box-shadow:var(--shadow); }
+    .btn.secondary{ background:#1d2a55; color:var(--text); border:1px solid rgba(255,255,255,.08); }
+    .btn.danger{ background:var(--danger); color:white; }
+    .ghost{ background:transparent; color:var(--text); border:1px solid rgba(255,255,255,.12); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    main{ flex:1; }
+    .grid{ display:grid; grid-template-columns: 1.1fr .9fr; gap:20px; }
+    @media (max-width: 900px){ .grid{ grid-template-columns:1fr; } }
+
+    .card{ background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+           border:1px solid rgba(255,255,255,.08);
+           border-radius: var(--radius);
+           padding:18px; box-shadow:var(--shadow);
+    }
+    .sub{ color:var(--muted); font-size:13px; }
+
+    .hero{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .balance{
+      font-size:44px; font-weight:800; letter-spacing:.5px; line-height:1.1;
+      background: linear-gradient(180deg, #fff, #a9c1ff); -webkit-background-clip:text; color:transparent;
+    }
+    .statRow{ display:flex; gap:14px; flex-wrap:wrap; margin-top:8px; }
+    .chip{ padding:8px 10px; border-radius:12px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.03); font-size:13px; }
+
+    .settings{ display:flex; flex-direction:column; gap:12px; }
+    .field{ display:flex; flex-direction:column; gap:6px; }
+    .field label{ font-size:13px; color:var(--muted); }
+    .input, select{ background:#0f1732; color:var(--text); border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:10px 12px; outline:none; }
+
+    .row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .footer{ text-align:center; font-size:12px; color:var(--muted); padding:20px 12px 40px; }
+
+    .badge-demo{ position:fixed; left:12px; bottom:12px; background:rgba(255,255,255,.1); border:1px dashed rgba(255,255,255,.3); color:var(--text); padding:6px 10px; border-radius:12px; font-size:12px; backdrop-filter:blur(6px); }
+
+    dialog{ border:1px solid rgba(255,255,255,.15); border-radius:16px; background:#0f1732; color:var(--text); padding:0; box-shadow:var(--shadow); width:min(520px, 92vw); }
+    dialog::backdrop{ background:rgba(0,0,0,.5); backdrop-filter: blur(2px); }
+    .modalHead{ padding:16px 18px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; justify-content:space-between; }
+    .modalBody{ padding:18px; display:flex; flex-direction:column; gap:12px; }
+
+    .notice{ font-size:13px; color:var(--muted); background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); padding:10px; border-radius:12px; }
+
+    .progress{ height:10px; background:#0f1732; border-radius:999px; border:1px solid rgba(255,255,255,.1); overflow:hidden; }
+    .progress > div{ height:100%; width:0%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .6s ease; }
+    
+    .payment-btn {
+      background: linear-gradient(135deg, var(--accent-2), var(--accent));
+      border: none;
+      color: #0b1020;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: bold;
+      width: 100%;
+      margin-top: 10px;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+    }
+    
+    .error-notice {
+      color: var(--danger);
+      background: rgba(255,107,107,.1);
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    /* Auth Styles */
+    .auth-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .auth-card {
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 420px;
+    }
+    
+    .auth-title {
+      text-align: center;
+      margin-bottom: 24px;
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(180deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .auth-switch {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 13px;
+    }
+    
+    .auth-switch a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    
+    .auth-switch a:hover {
+      text-decoration: underline;
+    }
+    
+    .terms {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 16px;
+      text-align: center;
+    }
+    
+    /* Language Selector */
+    .lang-selector {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .lang-btn {
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.15);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+    }
+    
+    .lang-btn:hover {
+      background: rgba(255,255,255,.15);
+    }
+    
+    .lang-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 8px;
+      padding: 8px 0;
+      min-width: 120px;
+      z-index: 100;
+      display: none;
+    }
+    
+    .lang-dropdown.show {
+      display: block;
+    }
+    
+    .lang-option {
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    
+    .lang-option:hover {
+      background: rgba(255,255,255,.05);
+    }
+    
+    .lang-flag {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    /* Новые стили для модального окна подписки */
+    .plan-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 16px 0;
+    }
+    
+    @media (max-width: 768px) {
+      .plan-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .plan-card {
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      transition: transform 0.2s ease;
+    }
+    
+    .plan-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--accent);
+    }
+    
+    .plan-card.basic {
+      border-color: #6ee7ff;
+    }
+    
+    .plan-card.pro {
+      border-color: #7cffb2;
+    }
+    
+    .plan-card.vip {
+      border-color: #ff6bff;
+    }
+    
+    .plan-name {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .plan-price {
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      background: linear-gradient(180deg, #fff, #a9c1ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .plan-features {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 16px;
+      text-align: left;
+    }
+    
+    .plan-features li {
+      margin-bottom: 6px;
+      list-style-type: none;
+      position: relative;
+      padding-left: 16px;
+    }
+    
+    .plan-features li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--accent-2);
+    }
+    
+    .subscribe-btn {
+      background: linear-gradient(135deg, var(--accent-2), var(--accent));
+      border: none;
+      color: #0b1020;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+      width: 100%;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+    }
+  </style>
+</head>
+<body>
+  <!-- Registration Form (initially shown if not logged in) -->
+  <div id="authScreen" class="auth-container" style="display: none;">
+    <div class="auth-card">
+      <h1 class="auth-title" id="authTitle">Создать аккаунт</h1>
+      
+      <form id="registerForm">
+        <div class="field">
+          <label for="regEmail">Email</label>
+          <input id="regEmail" class="input" type="email" placeholder="your@email.com" required />
+        </div>
+        
+        <div class="field">
+          <label for="regPassword">Пароль</label>
+          <input id="regPassword" class="input" type="password" placeholder="••••••••" minlength="8" required />
+        </div>
+        
+        <div class="field">
+          <label for="regConfirm">Подтвердите пароль</label>
+          <input id="regConfirm" class="input" type="password" placeholder="••••••••" required />
+        </div>
+        
+        <div class="field">
+          <label for="regUsername">Имя пользователя</label>
+          <input id="regUsername" class="input" placeholder="miner123" required />
+        </div>
+        
+        <div class="field" style="margin-top: 8px;">
+          <label>
+            <input type="checkbox" id="regTerms" required />
+            <span style="font-size: 13px;">Я согласен с <a href="#" style="color: var(--accent);">Условиями обслуживания</a> и <a href="#" style="color: var(--accent);">Политикой конфиденциальности</a></span>
+          </label>
+        </div>
+        
+        <button type="submit" class="btn" style="width: 100%; margin-top: 12px;">Зарегистрироваться</button>
+      </form>
+      
+      <div class="auth-switch">
+        Уже есть аккаунт? <a href="#" id="switchToLogin">Войти</a>
+      </div>
+      
+      <div class="terms">
+        CoinLab AI. Регистрация
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App (initially hidden if not logged in) -->
+  <div id="appScreen">
+    <header>
+      <div class="wrap topbar">
+        <div class="brand">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 2l2.6 5.3L20.5 8 16 12l1 6-5-2.8L7 18l1-6-4.5-4 5.9-.7L12 2z" stroke="url(#g)" stroke-width="1.3"/><defs><linearGradient id="g" x1="0" y1="0" x2="24" y2="24"><stop stop-color="#6ee7ff"/><stop offset="1" stop-color="#7cffb2"/></linearGradient></defs></svg>
+          <span>CoinLab AI</span>
+        </div>
+        <span class="pill">БАЗОВЫЙ ПЛАН</span>
+        <div class="spacer"></div>
+        <div class="row">
+          <div class="lang-selector">
+            <button class="lang-btn" id="langBtn">
+              <img src="https://flagcdn.com/w20/ru.png" class="lang-flag" id="currentFlag">
+              <span id="currentLang">Русский</span>
+            </button>
+            <div class="lang-dropdown" id="langDropdown">
+              <div class="lang-option" data-lang="ru" data-flag="ru">
+                <img src="https://flagcdn.com/w20/ru.png" class="lang-flag"> Русский
+              </div>
+              <div class="lang-option" data-lang="kz" data-flag="kz">
+                <img src="https://flagcdn.com/w20/kz.png" class="lang-flag"> Қазақша
+              </div>
+              <div class="lang-option" data-lang="en" data-flag="gb">
+                <img src="https://flagcdn.com/w20/gb.png" class="lang-flag"> English
+              </div>
+              <div class="lang-option" data-lang="es" data-flag="es">
+                <img src="https://flagcdn.com/w20/es.png" class="lang-flag"> Español
+              </div>
+              <div class="lang-option" data-lang="fr" data-flag="fr">
+                <img src="https://flagcdn.com/w20/fr.png" class="lang-flag"> Français
+              </div>
+              <div class="lang-option" data-lang="it" data-flag="it">
+                <img src="https://flagcdn.com/w20/it.png" class="lang-flag"> Italiano
+              </div>
+              <div class="lang-option" data-lang="ko" data-flag="kr">
+                <img src="https://flagcdn.com/w20/kr.png" class="lang-flag"> 한국어
+              </div>
+              <div class="lang-option" data-lang="ja" data-flag="jp">
+                <img src="https://flagcdn.com/w20/jp.png" class="lang-flag"> 日本語
+              </div>
+            </div>
+          </div>
+          <div class="avatar" id="avatar"><span>👤</span></div>
+          <div class="name" id="displayName">Майнер</div>
+          <button class="btn secondary" id="openSettings">Настройки</button>
+          <!-- Subscribe button moved next to Withdraw -->
+          <button class="btn secondary" id="subscribeBtn" data-i18n="subscribe">Подписка</button>
+          <button class="btn" id="withdrawBtn">Вывести</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <div class="grid">
+        <section class="card">
+          <div class="hero">
+            <div>
+              <div class="sub" data-i18n="current_balance">Текущий баланс</div>
+              <div class="balance" id="balance">0.00 USDT</div>
+              <div class="statRow">
+                <div class="chip"><span class="sub" data-i18n="rate">Скорость:</span> <b id="rateLabel">0.00 USDT/мин</b></div>
+                <div class="chip"><span class="sub" data-i18n="status">Статус:</span> <b id="status">Работает</b></div>
+                <div class="chip"><span class="sub" data-i18n="session">Сессия:</span> <b id="sessionTime">00:00:00</b></div>
+              </div>
+            </div>
+            <div class="row">
+              <button class="btn ghost" id="toggleMining" data-i18n="pause">⏸︎ Пауза</button>
+              <button class="btn secondary" id="rerollRate" disabled data-i18n="reroll_rate">Изменить скорость</button>
+            </div>
+          </div>
+          <div style="margin-top:16px" class="progress"><div id="progBar"></div></div>
+          <div id="rateError" class="error-notice" data-i18n="rate_error">
+            ❌ Чтобы изменить скорость майнинга, обновите свой тарифный план. Базовый план ограничен 2-3 USDT/мин.
+          </div>
+          <p class="sub" style="margin-top:10px" data-i18n="balance_info">Баланс растет в Базовом режиме со случайной скоростью от 2 до 3 USDT в минуту. Вы можете подключить максимум 2 устройства.</p>
+        </section>
+
+        <aside class="card settings">
+          <h3 style="margin:0 0 6px" data-i18n="profile">Профиль</h3>
+          <div class="field">
+            <label for="nameInput" data-i18n="name">Имя</label>
+            <input id="nameInput" class="input" placeholder="Ваше имя" />
+          </div>
+          <div class="field">
+            <label for="avatarInput" data-i18n="avatar">Аватар</label>
+            <input id="avatarInput" class="input" type="file" accept="image/*" />
+          </div>
+          <div class="row">
+            <button class="btn" id="saveProfile" data-i18n="save">Сохранить</button>
+            <button class="btn secondary" id="resetProfile" data-i18n="reset">Сбросить</button>
+          </div>
+
+          <h3 style="margin:12px 0 6px" data-i18n="session_settings">Настройки сессии</h3>
+          <div class="field">
+            <label for="minRate" data-i18n="min_rate">Мин. скорость (USDT/мин)</label>
+            <input id="minRate" class="input" type="number" min="0" step="0.1" value="2.0" readonly />
+          </div>
+          <div class="field">
+            <label for="maxRate" data-i18n="max_rate">Макс. скорость (USDT/мин)</label>
+            <input id="maxRate" class="input" type="number" min="0" step="0.1" value="3.0" readonly />
+          </div>
+          <div class="row">
+            <button class="btn" id="applyRate" disabled data-i18n="apply">Применить</button>
+            <!-- Removed Reset Balance button -->
+          </div>
+          <div class="notice" data-i18n="upgrade_notice">Чтобы увеличить скорость майнинга, перейдите на другой тарифный план.</div>
+        </aside>
+      </div>
+    </main>
+
+    <footer class="footer">© CoinLab AI • <span data-i18n="rights">Все права защищены</span></footer>
+    <div class="badge-demo" data-i18n="basic_mode">БАЗОВЫЙ РЕЖИМ</div>
+  </div>
+
+  <!-- Modals -->
+  <dialog id="settingsModal">
+    <div class="modalHead">
+      <strong data-i18n="settings">Настройки</strong>
+      <button class="btn secondary" id="closeSettings" data-i18n="close">Закрыть</button>
+    </div>
+    <div class="modalBody">
+      <div class="field">
+        <label for="nameInput2" data-i18n="name">Имя</label>
+        <input id="nameInput2" class="input" placeholder="Ваше имя" />
+      </div>
+      <div class="field">
+        <label for="avatarInput2" data-i18n="avatar">Аватар</label>
+        <input id="avatarInput2" class="input" type="file" accept="image/*" />
+      </div>
+      <div class="row">
+        <button class="btn" id="saveProfile2" data-i18n="save">Сохранить</button>
+        <button class="btn secondary" id="cancelProfile2" data-i18n="cancel">Отмена</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="withdrawModal">
+    <div class="modalHead">
+      <strong data-i18n="withdraw_funds">Вывести средства</strong>
+      <button class="btn secondary" id="closeWithdraw" data-i18n="close">Закрыть</button>
+    </div>
+    <div class="modalBody">
+      <div class="notice" data-i18n="withdraw_notice">💡 Базовый режим: Вывод доступен при балансе от 100 USDT</div>
+      <div class="field">
+        <label for="withdrawAmount" data-i18n="amount">Сумма (USDT)</label>
+        <input id="withdrawAmount" class="input" type="number" min="1" step="0.01" placeholder="например, 50" />
+      </div>
+      <div class="field">
+        <label for="withdrawAddress" data-i18n="wallet_address">Адрес кошелька</label>
+        <input id="withdrawAddress" class="input" placeholder="Ваш адрес" />
+      </div>
+      <div class="row">
+        <button class="btn" id="confirmWithdraw" data-i18n="request_withdrawal">Запросить вывод</button>
+        <button class="btn danger" id="clearWithdraw" data-i18n="clear">Очистить</button>
+      </div>
+      <div id="withdrawResult" class="sub"></div>
+    </div>
+  </dialog>
+
+  <!-- Новое модальное окно подписки -->
+  <dialog id="subscribeModal">
+    <div class="modalHead">
+      <strong data-i18n="choose_plan">Выберите план подписки</strong>
+      <button class="btn secondary" id="closeSubscribe" data-i18n="close">Закрыть</button>
+    </div>
+    <div class="modalBody">
+      <div class="plan-grid">
+        <div class="plan-card basic">
+          <div class="plan-name" data-i18n="basic_plan">БАЗОВЫЙ</div>
+          <div class="plan-price">20 USDT</div>
+          <ul class="plan-features">
+            <li data-i18n="basic_feature1">Скорость майнинга 2-3 USDT/мин</li>
+            <li data-i18n="basic_feature2">Макс. 2 устройства</li>
+            <li data-i18n="basic_feature3">Вывод от 100 USDT</li>
+            <li data-i18n="basic_feature4">Базовая поддержка</li>
+          </ul>
+          <button class="subscribe-btn" data-plan="basic" data-i18n="subscribe_now">Подписаться</button>
+        </div>
+        
+        <div class="plan-card pro">
+          <div class="plan-name" data-i18n="pro_plan">ПРО</div>
+          <div class="plan-price">50 USDT</div>
+          <ul class="plan-features">
+            <li data-i18n="pro_feature1">Скорость майнинга 5-7 USDT/мин</li>
+            <li data-i18n="pro_feature2">Макс. 5 устройств</li>
+            <li data-i18n="pro_feature3">Вывод от 50 USDT</li>
+            <li data-i18n="pro_feature4">Приоритетная поддержка</li>
+          </ul>
+          <button class="subscribe-btn" data-plan="pro" data-i18n="subscribe_now">Подписаться</button>
+        </div>
+        
+        <div class="plan-card vip">
+          <div class="plan-name" data-i18n="vip_plan">VIP</div>
+          <div class="plan-price">100 USDT</div>
+          <ul class="plan-features">
+            <li data-i18n="vip_feature1">Скорость майнинга 10-15 USDT/мин</li>
+            <li data-i18n="vip_feature2">Неограниченные устройства</li>
+            <li data-i18n="vip_feature3">Вывод любой суммы</li>
+            <li data-i18n="vip_feature4">Круглосуточная поддержка</li>
+          </ul>
+          <button class="subscribe-btn" data-plan="vip" data-i18n="subscribe_now">Подписаться</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    // --- Utility ---
+    const $ = (s, r=document) => r.querySelector(s);
+    const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+
+    // --- State ---
+    const state = {
+      balance: parseFloat(localStorage.getItem('balance')||'0'),
+      running: true,
+      ratePerMin: parseFloat(localStorage.getItem('ratePerMin')|| randomRate(2,3).toFixed(2)),
+      startedAt: Date.now(),
+      name: localStorage.getItem('name') || 'Майнер',
+      avatar: localStorage.getItem('avatar') || '',
+      lastTick: performance.now(),
+      prog: 0,
+      loggedIn: localStorage.getItem('loggedIn') === 'true',
+      language: localStorage.getItem('language') || 'ru'
+    };
+
+    // Translations
+    const translations = {
+      ru: {
+        current_balance: "Текущий баланс",
+        rate: "Скорость:",
+        status: "Статус:",
+        session: "Сессия:",
+        pause: "⏸︎ Пауза",
+        start: "▶︎ Старт",
+        reroll_rate: "Изменить скорость",
+        rate_error: "❌ Чтобы изменить скорость майнинга, обновите свой тарифный план. Базовый план ограничен 2-3 USDT/мин.",
+        balance_info: "Баланс растет в Базовом режиме со случайной скоростью от 2 до 3 USDT в минуту. Вы можете подключить максимум 2 устройства.",
+        profile: "Профиль",
+        name: "Имя",
+        avatar: "Аватар",
+        save: "Сохранить",
+        reset: "Сбросить",
+        session_settings: "Настройки сессии",
+        min_rate: "Мин. скорость (USDT/мин)",
+        max_rate: "Макс. скорость (USDT/мин)",
+        apply: "Применить",
+        reset_balance: "Сбросить баланс",
+        upgrade_notice: "Чтобы увеличить скорость майнинга, перейдите на другой тарифный план.",
+        rights: "Все права защищены",
+        basic_mode: "БАЗОВЫЙ РЕЖИМ",
+        settings: "Настройки",
+        close: "Закрыть",
+        withdraw_funds: "Вывести средства",
+        withdraw_notice: "💡 Базовый режим: Вывод доступен при балансе от 100 USDT.",
+        amount: "Сумма (USDT)",
+        wallet_address: "Адрес кошелька",
+        request_withdrawal: "Запросить вывод",
+        clear: "Очистить",
+        cancel: "Отмена",
+        subscribe: "Подписка",
+        choose_plan: "Выберите план подписки",
+        basic_plan: "БАЗОВЫЙ",
+        pro_plan: "ПРО", 
+        vip_plan: "VIP",
+        basic_feature1: "Скорость майнинга 2-3 USDT/мин",
+        basic_feature2: "Макс. 2 устройства",
+        basic_feature3: "Вывод от 100 USDT",
+        basic_feature4: "Базовая поддержка",
+        pro_feature1: "Скорость майнинга 5-7 USDT/мин",
+        pro_feature2: "Макс. 5 устройств",
+        pro_feature3: "Вывод от 50 USDT",
+        pro_feature4: "Приоритетная поддержка",
+        vip_feature1: "Скорость майнинга 10-15 USDT/мин",
+        vip_feature2: "Неограниченные устройства",
+        vip_feature3: "Вывод любой суммы",
+        vip_feature4: "Круглосуточная поддержка",
+        subscribe_now: "Подписаться",
+        email: "Email",
+        password: "Пароль",
+        create_account: "Создать аккаунт",
+        login: "Войти",
+        sign_in: "Вход",
+        password_mismatch: "Пароли не совпадают",
+        withdraw_error: "Введите корректную сумму и адрес.",
+        subscription_error: "Ошибка: Для вывода средств нужна активная подписка.",
+        subscription_notice: "Пожалуйста, приобретите подписку для включения вывода средств.",
+        pay_subscription: "Оплатить подписку (100 USDT/неделя)"
+      },
+      kz: {
+        current_balance: "Ағымдағы баланс",
+        rate: "Жылдамдық:",
+        status: "Статус:",
+        session: "Сессия:",
+        pause: "⏸︎ Кідірту",
+        start: "▶︎ Бастау",
+        reroll_rate: "Жылдамдықты өзгерту",
+        rate_error: "❌ Майнинг жылдамдығын өзгерту үшін тарифтік жоспарыңызды жаңартыңыз. Негізгі жоспар 2-3 USDT/мин шектеулі.",
+        balance_info: "Баланс Негізгі режимде минутқа 2-ден 3 USDT-ге дейін кездейсоқ жылдамдықта өседі. Сіз ең көп дегенде 2 құрылғыны қоса аласыз.",
+        profile: "Профиль",
+        name: "Аты",
+        avatar: "Аватар",
+        save: "Сақтау",
+        reset: "Қалпына келтіру",
+        session_settings: "Сессия параметрлері",
+        min_rate: "Мин. жылдамдық (USDT/мин)",
+        max_rate: "Макс. жылдамдық (USDT/мин)",
+        apply: "Қолдану",
+        reset_balance: "Балансты қалпына келтіру",
+        upgrade_notice: "Майнинг жылдамдығын арттыру үшін басқа тарифтік жоспарға ауысыңыз.",
+        rights: "Барлық құқықтар қорғалған",
+        basic_mode: "НЕГІЗГІ РЕЖИМ",
+        settings: "Параметрлер",
+        close: "Жабу",
+        withdraw_funds: "Қаражатты шығару",
+        withdraw_notice: "💡 Негізгі режим: 100 USDT-ден жоғары болған жағдайда ақшалай қаражатты шығаруға болады.",
+        amount: "Сома (USDT)",
+        wallet_address: "Әмиян мекенжайы",
+        request_withdrawal: "Шығаруды сұрау",
+        clear: "Тазарту",
+        cancel: "Бас тарту",
+        subscribe: "Жазылым",
+        choose_plan: "Жазылым жоспарын таңдаңыз",
+        basic_plan: "НЕГІЗГІ",
+        pro_plan: "ПРО",
+        vip_plan: "VIP",
+        basic_feature1: "2-3 USDT/мин майнинг жылдамдығы",
+        basic_feature2: "Макс. 2 құрылғы",
+        basic_feature3: "100 USDT-ден бастап шығару",
+        basic_feature4: "Негізгі қолдау",
+        pro_feature1: "5-7 USDT/мин майнинг жылдамдығы",
+        pro_feature2: "Макс. 5 құрылғы",
+        pro_feature3: "50 USDT-ден бастап шығару",
+        pro_feature4: "Басымдықты қолдау",
+        vip_feature1: "10-15 USDT/мин майнинг жылдамдығы",
+        vip_feature2: "Шексіз құрылғылар",
+        vip_feature3: "Кез келген соманы шығару",
+        vip_feature4: "Тәулік бойы қолдау",
+        subscribe_now: "Жазылу",
+        email: "Email",
+        password: "Құпия сөз",
+        create_account: "Тіркелу",
+        login: "Кіру",
+        sign_in: "Кіру",
+        password_mismatch: "Құпия сөздер сәйкес келмейді",
+        withdraw_error: "Дұрыс сома мен мекенжайды енгізіңіз.",
+        subscription_error: "Қате: Қаражатты шығару үшін белсенді жазылым қажет.",
+        subscription_notice: "Шығаруды қосу үшін жазылым сатып алыңыз.",
+        pay_subscription: "Жазылымды төлеу (100 USDT/апта)"
+      },
+      en: {
+        current_balance: "Current balance",
+        rate: "Rate:",
+        status: "Status:",
+        session: "Session:",
+        pause: "⏸︎ Pause",
+        start: "▶︎ Start",
+        reroll_rate: "Reroll rate",
+        rate_error: "❌ To change mining rate, please upgrade your tariff plan. Basic plan is limited to $2-$3/min.",
+        balance_info: "The balance grows in Basic mode at a random rate from $2 to $3 per minute. You can connect a maximum of 2 devices.",
+        profile: "Profile",
+        name: "Name",
+        avatar: "Avatar",
+        save: "Save",
+        reset: "Reset",
+        session_settings: "Session settings",
+        min_rate: "Min rate (USDT/min)",
+        max_rate: "Max rate (USDT/min)",
+        apply: "Apply",
+        reset_balance: "Reset balance",
+        upgrade_notice: "To increase mining speed, switch to a different tariff plan.",
+        rights: "All rights reserved",
+        basic_mode: "BASIC MODE",
+        settings: "Settings",
+        close: "Close",
+        withdraw_funds: "Withdraw funds",
+        withdraw_notice: "💡 Basic mode: Withdrawals are available if the balance exceeds 100 USDT.",
+        amount: "Amount (USDT)",
+        wallet_address: "Wallet address",
+        request_withdrawal: "Request withdrawal",
+        clear: "Clear",
+        cancel: "Cancel",
+        subscribe: "Subscribe",
+        choose_plan: "Choose Subscription Plan",
+        basic_plan: "BASIC",
+        pro_plan: "PRO", 
+        vip_plan: "VIP",
+        basic_feature1: "2-3 USDT/min mining rate",
+        basic_feature2: "2 devices max",
+        basic_feature3: "Withdraw from 100 USDT",
+        basic_feature4: "Basic support",
+        pro_feature1: "5-7 USDT/min mining rate",
+        pro_feature2: "5 devices max",
+        pro_feature3: "Withdraw from 50 USDT",
+        pro_feature4: "Priority support",
+        vip_feature1: "10-15 USDT/min mining rate",
+        vip_feature2: "Unlimited devices",
+        vip_feature3: "Withdraw any amount",
+        vip_feature4: "24/7 dedicated support",
+        subscribe_now: "Subscribe Now",
+        email: "Email",
+        password: "Password",
+        create_account: "Create Account",
+        login: "Login",
+        sign_in: "Sign In",
+        password_mismatch: "Passwords do not match",
+        withdraw_error: "Enter a valid amount and address.",
+        subscription_error: "Error: To withdraw your funds, you need an active subscription.",
+        subscription_notice: "Please purchase a subscription to enable withdrawals.",
+        pay_subscription: "Pay Subscription (100 USDT/week)"
+      },
+      es: {
+        current_balance: "Saldo actual",
+        rate: "Tasa:",
+        status: "Estado:",
+        session: "Sesión:",
+        pause: "⏸︎ Pausa",
+        start: "▶︎ Iniciar",
+        reroll_rate: "Cambiar tasa",
+        rate_error: "❌ Para cambiar la tasa de minería, actualice su plan tarifario. El plan básico está limitado a 2-3 USDT/min.",
+        balance_info: "El saldo crece en modo Básico a una tasa aleatoria de 2 a 3 USDT por minuto. Puede conectar un máximo de 2 dispositivos.",
+        profile: "Perfil",
+        name: "Nombre",
+        avatar: "Avatar",
+        save: "Guardar",
+        reset: "Reiniciar",
+        session_settings: "Configuración de sesión",
+        min_rate: "Tasa mín (USDT/min)",
+        max_rate: "Tasa máx (USDT/min)",
+        apply: "Aplicar",
+        reset_balance: "Reiniciar saldo",
+        upgrade_notice: "Para aumentar la velocidad de minería, cambie to un plan tarifario diferente.",
+        rights: "Todos los derechos reservados",
+        basic_mode: "MODO BÁSICO",
+        settings: "Configuración",
+        close: "Cerrar",
+        withdraw_funds: "Retirar fondos",
+        withdraw_notice: "💡 Modo básico: Los retiros están disponibles si el saldo supera los 100 USDT.",
+        amount: "Cantidad (USDT)",
+        wallet_address: "Dirección de billetera",
+        request_withdrawal: "Solicitar retiro",
+        clear: "Limpiar",
+        cancel: "Cancelar",
+        subscribe: "Suscribirse",
+        choose_plan: "Elegir Plan de Suscripción",
+        basic_plan: "BÁSICO",
+        pro_plan: "PRO",
+        vip_plan: "VIP",
+        basic_feature1: "Tasa de minería 2-3 USDT/min",
+        basic_feature2: "Máx 2 dispositivos",
+        basic_feature3: "Retirar desde 100 USDT",
+        basic_feature4: "Soporte básico",
+        pro_feature1: "Tasa de minería 5-7 USDT/min",
+        pro_feature2: "Máx 5 dispositivos",
+        pro_feature3: "Retirar desde 50 USDT",
+        pro_feature4: "Soporte prioritario",
+        vip_feature1: "Tasa de minería 10-15 USDT/min",
+        vip_feature2: "Dispositivos ilimitados",
+        vip_feature3: "Retirar cualquier cantidad",
+        vip_feature4: "Soporte dedicado 24/7",
+        subscribe_now: "Suscribirse Ahora",
+        email: "Email",
+        password: "Contraseña",
+        create_account: "Crear Cuenta",
+        login: "Iniciar Sesión",
+        sign_in: "Iniciar Sesión",
+        password_mismatch: "Las contraseñas no coinciden",
+        withdraw_error: "Ingrese un monto y dirección válidos.",
+        subscription_error: "Error: Para retirar sus fondos, necesita una suscripción activa.",
+        subscription_notice: "Por favor, compre una suscripción para habilitar retiros.",
+        pay_subscription: "Pagar Suscripción (100 USDT/semana)"
+      },
+      fr: {
+        current_balance: "Solde actuel",
+        rate: "Taux:",
+        status: "Statut:",
+        session: "Session:",
+        pause: "⏸︎ Pause",
+        start: "▶︎ Démarrer",
+        reroll_rate: "Changer taux",
+        rate_error: "❌ Pour modifier le taux minier, veuillez mettre à niveau votre forfait. Le forfait de base est limité à 2-3 USDT/min.",
+        balance_info: "Le solde augmente en mode Basique à un taux aléatoire de 2 à 3 USDT par minute. Vous pouvez connecter un maximum de 2 appareils.",
+        profile: "Profil",
+        name: "Nom",
+        avatar: "Avatar",
+        save: "Enregistrer",
+        reset: "Réinitialiser",
+        session_settings: "Paramètres de session",
+        min_rate: "Taux min (USDT/min)",
+        max_rate: "Taux max (USDT/min)",
+        apply: "Appliquer",
+        reset_balance: "Réinitialiser solde",
+        upgrade_notice: "Pour augmenter la vitesse de minage, passez à un autre forfait.",
+        rights: "Tous droits réservés",
+        basic_mode: "MODE BASIQUE",
+        settings: "Paramètres",
+        close: "Fermer",
+        withdraw_funds: "Retirer des fonds",
+        withdraw_notice: "💡 Mode basique : Les retraits sont disponibles si le solde dépasse 100 USDT.",
+        amount: "Montant (USDT)",
+        wallet_address: "Adresse du portefeuille",
+        request_withdrawal: "Demande de retrait",
+        clear: "Effacer",
+        cancel: "Annuler",
+        subscribe: "S'abonner",
+        choose_plan: "Choisir un Plan d'Abonnement",
+        basic_plan: "BASIQUE",
+        pro_plan: "PRO",
+        vip_plan: "VIP",
+        basic_feature1: "Taux minier 2-3 USDT/min",
+        basic_feature2: "2 appareils max",
+        basic_feature3: "Retrait à partir de 100 USDT",
+        basic_feature4: "Support de base",
+        pro_feature1: "Taux minier 5-7 USDT/min",
+        pro_feature2: "5 appareils max",
+        pro_feature3: "Retrait à partir de 50 USDT",
+        pro_feature4: "Support prioritaire",
+        vip_feature1: "Taux minier 10-15 USDT/min",
+        vip_feature2: "Appareils illimités",
+        vip_feature3: "Retrait de tout montant",
+        vip_feature4: "Support dédié 24/7",
+        subscribe_now: "S'abonner Maintenant",
+        email: "Email",
+        password: "Mot de passe",
+        create_account: "Créer un Compte",
+        login: "Connexion",
+        sign_in: "Se Connecter",
+        password_mismatch: "Les mots de passe ne correspondent pas",
+        withdraw_error: "Entrez un montant et une adresse valides.",
+        subscription_error: "Erreur : Pour retirer vos fonds, vous avez besoin d'un abonnement actif.",
+        subscription_notice: "Veuillez acheter un abonnement pour activer les retraits.",
+        pay_subscription: "Payer l'Abonnement (100 USDT/semaine)"
+      },
+      it: {
+        current_balance: "Saldo attuale",
+        rate: "Tasso:",
+        status: "Stato:",
+        session: "Sessione:",
+        pause: "⏸︎ Pausa",
+        start: "▶︎ Avvia",
+        reroll_rate: "Cambia tasso",
+        rate_error: "❌ Per modificare la velocità di mining, aggiorna il tuo piano tariffario. Il plano base è limitato a 2-3 USDT/min.",
+        balance_info: "Il saldo cresce in modalità Base a una velocità casuale da 2 a 3 USDT al minuto. Puoi connettere un massimo di 2 dispositivi.",
+        profile: "Profilo",
+        name: "Nome",
+        avatar: "Avatar",
+        save: "Salva",
+        reset: "Reimposta",
+        session_settings: "Impostazioni sessione",
+        min_rate: "Tasso min (USDT/min)",
+        max_rate: "Tasso max (USDT/min)",
+        apply: "Applica",
+        reset_balance: "Reimposta saldo",
+        upgrade_notice: "Per aumentare la velocità di mining, passa a un piano tariffario diverso.",
+        rights: "Tutti i diritti riservati",
+        basic_mode: "MODALITÀ BASE",
+        settings: "Impostazioni",
+        close: "Chiudi",
+        withdraw_funds: "Preleva fondi",
+        withdraw_notice: "💡 Modalità base: I prelievi sono disponibili si il saldo supera 100 USDT.",
+        amount: "Importo (USDT)",
+        wallet_address: "Indirizzo wallet",
+        request_withdrawal: "Richiedi prelievo",
+        clear: "Pulisci",
+        cancel: "Annulla",
+        subscribe: "Abbonati",
+        choose_plan: "Scegli Piano di Abbonamento",
+        basic_plan: "BASE",
+        pro_plan: "PRO",
+        vip_plan: "VIP",
+        basic_feature1: "Velocità mining 2-3 USDT/min",
+        basic_feature2: "2 dispositivi max",
+        basic_feature3: "Prelievo da 100 USDT",
+        basic_feature4: "Supporto base",
+        pro_feature1: "Velocità mining 5-7 USDT/min",
+        pro_feature2: "5 dispositivi max",
+        pro_feature3: "Prelievo da 50 USDT",
+        pro_feature4: "Supporto prioritario",
+        vip_feature1: "Velocità mining 10-15 USDT/min",
+        vip_feature2: "Dispositivi illimitati",
+        vip_feature3: "Prelievo qualsiasi importo",
+        vip_feature4: "Supporto dedicato 24/7",
+        subscribe_now: "Abbonati Ora",
+        email: "Email",
+        password: "Password",
+        create_account: "Crea Account",
+        login: "Accedi",
+        sign_in: "Accedi",
+        password_mismatch: "Le password non corrispondono",
+        withdraw_error: "Inserisci un importo e un indirizzo validi.",
+        subscription_error: "Errore: Per prelevare i tuoi fondi, hai bisogno di un abbonamento attivo.",
+        subscription_notice: "Per favore, acquista un abbonamento per abilitare i prelievi.",
+        pay_subscription: "Paga Abbonamento (100 USDT/settimana)"
+      },
+      ko: {
+        current_balance: "현재 잔액",
+        rate: "속도:",
+        status: "상태:",
+        session: "세션:",
+        pause: "⏸︎ 일시 정지",
+        start: "▶︎ 시작",
+        reroll_rate: "속도 변경",
+        rate_error: "❌ 채굴 속도를 변경하려면 요금제를 업그레이드하세요. 기본 요금제는 분당 2-3 USDT로 제한됩니다.",
+        balance_info: "기본 모드에서 잔액은 분당 2에서 3 USDT 사이의 무작위 속도로 증가합니다. 최대 2개의 장치를 연결할 수 있습니다.",
+        profile: "프로필",
+        name: "이름",
+        avatar: "아바타",
+        save: "저장",
+        reset: "초기화",
+        session_settings: "세션 설정",
+        min_rate: "최소 속도 (USDT/분)",
+        max_rate: "최대 속도 (USDT/분)",
+        apply: "적용",
+        reset_balance: "잔액 초기화",
+        upgrade_notice: "채굴 속도를 높이려면 다른 요금제로 전환하세요.",
+        rights: "모든 권리 보유",
+        basic_mode: "기본 모드",
+        settings: "설정",
+        close: "닫기",
+        withdraw_funds: "자금 인출",
+        withdraw_notice: "💡 기본 모드: 잔액이 100 USDT를 초과하면 인출이 가능합니다.",
+        amount: "금액 (USDT)",
+        wallet_address: "지갑 주소",
+        request_withdrawal: "인출 요청",
+        clear: "지우기",
+        cancel: "취소",
+        subscribe: "구독",
+        choose_plan: "구독 플랜 선택",
+        basic_plan: "베이직",
+        pro_plan: "프로",
+        vip_plan: "VIP",
+        basic_feature1: "2-3 USDT/분 채굴 속도",
+        basic_feature2: "최대 2개 장치",
+        basic_feature3: "100 USDT부터 인출 가능",
+        basic_feature4: "기본 지원",
+        pro_feature1: "5-7 USDT/분 채굴 속도",
+        pro_feature2: "최대 5개 장치",
+        pro_feature3: "50 USDT부터 인출 가능",
+        pro_feature4: "우선 지원",
+        vip_feature1: "10-15 USDT/분 채굴 속도",
+        vip_feature2: "무제한 장치",
+        vip_feature3: "모든 금액 인출 가능",
+        vip_feature4: "24/7 전용 지원",
+        subscribe_now: "지금 구독",
+        email: "이메일",
+        password: "비밀번호",
+        create_account: "계정 생성",
+        login: "로그인",
+        sign_in: "로그인",
+        password_mismatch: "비밀번호가 일치하지 않습니다",
+        withdraw_error: "유효한 금액과 주소를 입력하세요.",
+        subscription_error: "오류: 자금을 인출하려면 활성 구독이 필요합니다.",
+        subscription_notice: "인출을 활성화하려면 구독을 구매하세요.",
+        pay_subscription: "구독 결제 (100 USDT/주)"
+      },
+      ja: {
+        current_balance: "現在の残高",
+        rate: "レート:",
+        status: "ステータス:",
+        session: "セッション:",
+        pause: "⏸︎ 一時停止",
+        start: "▶︎ 開始",
+        reroll_rate: "レート変更",
+        rate_error: "❌ マイニングレートを変更するには、料金プランをアップグレードしてください。基本プランは2-3 USDT/分に制限されています。",
+        balance_info: "基本モードでは、残高は1分あたり2から3 USDTのランダムなレートで増加します。最大2台のデバイスを接続できます。",
+        profile: "プロフィール",
+        name: "名前",
+        avatar: "アバター",
+        save: "保存",
+        reset: "リセット",
+        session_settings: "セッション設定",
+        min_rate: "最小レート (USDT/分)",
+        max_rate: "最大レート (USDT/分)",
+        apply: "適用",
+        reset_balance: "残高リセット",
+        upgrade_notice: "マイニング速度を上げるには、別の料金プランに切り替えてください。",
+        rights: "全著作権所有",
+        basic_mode: "基本モード",
+        settings: "設定",
+        close: "閉じる",
+        withdraw_funds: "資金の引き出し",
+        withdraw_notice: "💡 基本モード: 残高が100 USDTを超えると引き出しが可能になります。",
+        amount: "金額 (USDT)",
+        wallet_address: "ウォレットアドレス",
+        request_withdrawal: "引き出しをリクエスト",
+        clear: "クリア",
+        cancel: "キャンセル",
+        subscribe: "購読",
+        choose_plan: "購読プランを選択",
+        basic_plan: "ベーシック",
+        pro_plan: "プロ",
+        vip_plan: "VIP",
+        basic_feature1: "2-3 USDT/分 マイニング速度",
+        basic_feature2: "最大2デバイス",
+        basic_feature3: "100 USDTから引き出し可能",
+        basic_feature4: "基本サポート",
+        pro_feature1: "5-7 USDT/分 マイニング速度",
+        pro_feature2: "最大5デバイス",
+        pro_feature3: "50 USDTから引き出し可能",
+        pro_feature4: "優先サポート",
+        vip_feature1: "10-15 USDT/分 マイニング速度",
+        vip_feature2: "無制限デバイス",
+        vip_feature3: "任意の金額を引き出し",
+        vip_feature4: "24/7専用サポート",
+        subscribe_now: "今すぐ購読",
+        email: "メール",
+        password: "パスワード",
+        create_account: "アカウント作成",
+        login: "ログイン",
+        sign_in: "ログイン",
+        password_mismatch: "パスワードが一致しません",
+        withdraw_error: "有効な金額とアドレスを入力してください。",
+        subscription_error: "エラー：資金を引き出すには、アクティブなサブスクリプションが必要です。",
+        subscription_notice: "引き出しを有効にするには、サブスクリプションを購入してください。",
+        pay_subscription: "サブスクリプションを支払う (100 USDT/週)"
+      }
+    };
+
+    function randomRate(min,max){
+      return Math.random()*(max-min)+min;
+    }
+
+    // --- Elements ---
+    const authScreen = $('#authScreen');
+    const appScreen = $('#appScreen');
+    const registerForm = $('#registerForm');
+    const switchToLogin = $('#switchToLogin');
+    const authTitle = $('#authTitle');
+    
+    const balanceEl = $('#balance');
+    const rateEl = $('#rateLabel');
+    const statusEl = $('#status');
+    const sessionEl = $('#sessionTime');
+    const progBar = $('#progBar');
+    const rateError = $('#rateError');
+
+    const displayName = $('#displayName');
+    const avatarEl = $('#avatar');
+
+    const nameInput = $('#nameInput');
+    const avatarInput = $('#avatarInput');
+    const saveProfile = $('#saveProfile');
+    const resetProfile = $('#resetProfile');
+
+    const minRate = $('#minRate');
+    const maxRate = $('#maxRate');
+    const applyRate = $('#applyRate');
+
+    const toggleMining = $('#toggleMining');
+    const rerollRate = $('#rerollRate');
+
+    const openSettings = $('#openSettings');
+    const settingsModal = $('#settingsModal');
+    const closeSettings = $('#closeSettings');
+
+    const nameInput2 = $('#nameInput2');
+    const avatarInput2 = $('#avatarInput2');
+    const saveProfile2 = $('#saveProfile2');
+    const cancelProfile2 = $('#cancelProfile2');
+
+    const withdrawBtn = $('#withdrawBtn');
+    const withdrawModal = $('#withdrawModal');
+    const closeWithdraw = $('#closeWithdraw');
+    const withdrawAmount = $('#withdrawAmount');
+    const withdrawAddress = $('#withdrawAddress');
+    const confirmWithdraw = $('#confirmWithdraw');
+    const clearWithdraw = $('#clearWithdraw');
+    const withdrawResult = $('#withdrawResult');
+
+    // Language elements
+    const langBtn = $('#langBtn');
+    const langDropdown = $('#langDropdown');
+    const currentFlag = $('#currentFlag');
+    const currentLang = $('#currentLang');
+
+    // Новые элементы для подписки
+    const subscribeBtn = $('#subscribeBtn');
+    const subscribeModal = $('#subscribeModal');
+    const closeSubscribe = $('#closeSubscribe');
+    const subscribeButtons = $$('.subscribe-btn');
+
+    // --- Language Functions ---
+    function updateLanguage(lang) {
+      state.language = lang;
+      localStorage.setItem('language', lang);
+      
+      // Update UI elements
+      const langData = translations[lang];
+      $$('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (langData[key]) {
+          if (el.tagName === 'INPUT' && el.placeholder) {
+            el.placeholder = langData[key];
+          } else {
+            el.textContent = langData[key];
+          }
+        }
+      });
+      
+      // Update current language display
+      const selectedOption = $(`.lang-option[data-lang="${lang}"]`);
+      if (selectedOption) {
+        const flag = selectedOption.getAttribute('data-flag');
+        currentFlag.src = `https://flagcdn.com/w20/${flag}.png`;
+        currentLang.textContent = selectedOption.textContent.trim();
+      }
+      
+      // Update balance display with USDT
+      renderStats();
+    }
+
+    // --- Init AI ---
+    function showAuthScreen() {
+      authScreen.style.display = 'flex';
+      appScreen.style.display = 'none';
+    }
+    
+    function showAppScreen() {
+      authScreen.style.display = 'none';
+      appScreen.style.display = 'block';
+      renderProfile();
+      renderStats();
+      if(!state.loggedIn) {
+        state.loggedIn = true;
+        localStorage.setItem('loggedIn', 'true');
+      }
+    }
+    
+    function renderProfile(){
+      displayName.textContent = state.name || 'Майнер';
+      nameInput.value = state.name || '';
+      nameInput2.value = state.name || '';
+      if(state.avatar){
+        const img = document.createElement('img');
+        img.src = state.avatar; img.alt = 'avatar';
+        avatarEl.innerHTML = ''; avatarEl.appendChild(img);
+      } else {
+        avatarEl.innerHTML = '<span>👤</span>';
+      }
+    }
+
+    function renderStats(){
+      balanceEl.textContent = `${state.balance.toFixed(2)} USDT`;
+      rateEl.textContent = `${state.ratePerMin.toFixed(2)} USDT/мин`;
+      statusEl.textContent = state.running ? translations[state.language].status.split(':')[0] + ': ' + (state.language === 'ru' || state.language === 'kz' ? (state.running ? 'Работает' : 'На паузе') : (state.running ? 'Running' : 'Paused')) : translations[state.language].status.split(':')[0] + ': ' + (state.language === 'ru' || state.language === 'kz' ? 'На паузе' : 'Paused');
+    }
+
+    function tick(ts){
+      const dt = Math.max(0, ts - state.lastTick) / 1000; // seconds
+      state.lastTick = ts;
+      if(state.running){
+        // slight jitter around rate
+        const jitter = (Math.random() - 0.5) * 0.1; // +/- 0.05 USDT/min wiggle
+        const rate = Math.max(0, state.ratePerMin + jitter);
+        state.balance += rate/60 * dt; // USDT per second
+        state.prog = (state.prog + dt*10) % 100; // fake progress
+        localStorage.setItem('balance', state.balance.toString());
+        progBar.style.width = (state.prog) + '%';
+      }
+      // session time
+      const s = Math.floor((Date.now() - state.startedAt)/1000);
+      const hh = String(Math.floor(s/3600)).padStart(2,'0');
+      const mm = String(Math.floor((s%3600)/60)).padStart(2,'0');
+      const ss = String(s%60).padStart(2,'0');
+      sessionEl.textContent = `${hh}:${mm}:${ss}`;
+      renderStats();
+      requestAnimationFrame(tick);
+    }
+
+    // --- Registration/Login Flow ---
+    registerForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const email = $('#regEmail').value;
+      const password = $('#regPassword').value;
+      const confirm = $('#regConfirm').value;
+      const username = $('#regUsername').value;
+      
+      if(password !== confirm) {
+        alert(translations[state.language].password_mismatch || 'Passwords do not match');
+        return;
+      }
+      
+      // 
+      console.log('Registering:', {email, password, username});
+      
+      // For basic mode, just log in
+      state.name = username;
+      localStorage.setItem('name', username);
+      showAppScreen();
+    });
+    
+    switchToLogin.addEventListener('click', (e) => {
+      e.preventDefault();
+      authTitle.textContent = translations[state.language].sign_in || 'Sign In';
+      registerForm.innerHTML = `
+        <div class="field">
+          <label for="loginEmail">${translations[state.language].email || 'Email'}</label>
+          <input id="loginEmail" class="input" type="email" placeholder="your@email.com" required />
+        </div>
+        
+        <div class="field">
+          <label for="loginPassword">${translations[state.language].password || 'Password'}</label>
+          <input id="loginPassword" class="input" type="password" placeholder="••••••••" required />
+        </div>
+        
+        <button type="submit" class="btn" style="width: 100%; margin-top: 12px;">${translations[state.language].login || 'Login'}</button>
+      `;
+      
+      // Change the switch link to go back to registration
+      switchToLogin.textContent = translations[state.language].create_account || 'Create Account';
+      switchToLogin.onclick = (e) => {
+        e.preventDefault();
+        location.reload(); // Simple way to reset the form
+      };
+    });
+
+    // --- Event handlers ---
+    toggleMining.addEventListener('click', ()=>{
+      state.running = !state.running;
+      toggleMining.textContent = state.running ? 
+        '⏸︎ ' + (translations[state.language].pause || 'Pause') : 
+        '▶︎ ' + (translations[state.language].start || 'Start');
+      renderStats();
+    });
+
+    rerollRate.addEventListener('click', ()=>{
+      // Show error message
+      rateError.style.display = 'block';
+      setTimeout(() => {
+        rateError.style.display = 'none';
+      }, 3000);
+    });
+
+    applyRate.addEventListener('click', ()=>{
+      const min = parseFloat(minRate.value)||2; const max = parseFloat(maxRate.value)||3;
+      if(max < min){ [minRate.value, maxRate.value] = [maxRate.value, minRate.value]; }
+      state.ratePerMin = parseFloat(randomRate(parseFloat(minRate.value), parseFloat(maxRate.value)).toFixed(2));
+      localStorage.setItem('ratePerMin', state.ratePerMin.toString());
+      renderStats();
+    });
+
+    function readFile(input, cb){
+      const f = input.files && input.files[0]; if(!f) return cb();
+      const reader = new FileReader();
+      reader.onload = e => cb(e.target.result);
+      reader.readAsDataURL(f);
+    }
+
+    saveProfile.addEventListener('click', ()=>{
+      state.name = nameInput.value.trim() || (state.language === 'ru' ? 'Майнер' : 'Miner');
+      localStorage.setItem('name', state.name);
+      if(avatarInput.files && avatarInput.files[0]){
+        readFile(avatarInput, (data)=>{
+          if(data){ state.avatar = data; localStorage.setItem('avatar', data); }
+          renderProfile();
+        });
+      } else {
+        renderProfile();
+      }
+    });
+
+    resetProfile.addEventListener('click', ()=>{
+      state.name = (state.language === 'ru' ? 'Майнер' : 'Miner'); 
+      state.avatar = '';
+      localStorage.removeItem('name'); 
+      localStorage.removeItem('avatar');
+      renderProfile();
+    });
+
+    // Settings modal (optional quick access)
+    openSettings.addEventListener('click', ()=> settingsModal.showModal());
+    closeSettings.addEventListener('click', ()=> settingsModal.close());
+    saveProfile2.addEventListener('click', ()=>{
+      state.name = nameInput2.value.trim() || (state.language === 'ru' ? 'Майнер' : 'Miner');
+      localStorage.setItem('name', state.name);
+      if(avatarInput2.files && avatarInput2.files[0]){
+        readFile(avatarInput2, (data)=>{
+          if(data){ state.avatar = data; localStorage.setItem('avatar', data); }
+          renderProfile();
+          settingsModal.close();
+        });
+      } else { renderProfile(); settingsModal.close(); }
+    });
+    cancelProfile2.addEventListener('click', ()=> settingsModal.close());
+
+    // Withdraw modal
+    withdrawBtn.addEventListener('click', ()=>{ withdrawModal.showModal(); withdrawResult.textContent=''; });
+    closeWithdraw.addEventListener('click', ()=> withdrawModal.close());
+    clearWithdraw.addEventListener('click', ()=>{ withdrawAmount.value=''; withdrawAddress.value=''; withdrawResult.textContent=''; });
+    confirmWithdraw.addEventListener('click', ()=>{
+      const amt = parseFloat(withdrawAmount.value||'0');
+      const addr = (withdrawAddress.value||'').trim();
+      if(!amt || amt<=0 || !addr){ 
+        withdrawResult.textContent=translations[state.language].withdraw_error || 'Enter a valid amount and address.'; 
+        return; 
+      }
+      
+      // Show subscription error and payment button
+      withdrawResult.innerHTML = `
+        <div style="color:var(--danger); margin-bottom:12px; background:rgba(255,107,107,.1); padding:10px; border-radius:8px;">
+          ❌ ${translations[state.language].subscription_error || 'Error: To withdraw your funds, you need an active subscription.'}
+          <div style="font-size:12px; margin-top:4px; color:var(--muted);">
+            ${translations[state.language].subscription_notice || 'Please purchase a subscription to enable withdrawals.'}
+          </div>
+        </div>
+        <button class="payment-btn" id="paySubscription">
+          💳 ${translations[state.language].pay_subscription || 'Pay Subscription (100 USDT/week)'}
+        </button>
+      `;
+      
+      // Add click handler for the payment button
+      $('#paySubscription').addEventListener('click', () => {
+        window.open('https://nowpayments.io/payment/?iid=4733269114', '_blank');
+      });
+    });
+
+    // Language selector
+    langBtn.addEventListener('click', () => {
+      langDropdown.classList.toggle('show');
+    });
+
+    // Close language dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.lang-selector')) {
+        langDropdown.classList.remove('show');
+      }
+    });
+
+    // Language selection
+    $$('.lang-option').forEach(option => {
+      option.addEventListener('click', () => {
+        const lang = option.getAttribute('data-lang');
+        updateLanguage(lang);
+        langDropdown.classList.remove('show');
+      });
+    });
+
+    // Обработчики для новой функциональности подписки
+    subscribeBtn.addEventListener('click', () => {
+      subscribeModal.showModal();
+    });
+
+    closeSubscribe.addEventListener('click', () => {
+      subscribeModal.close();
+    });
+
+    subscribeButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        const plan = e.target.getAttribute('data-plan');
+        const planUrls = {
+          basic: 'https://nowpayments.io/payment/?iid=4733269114',
+          pro: 'https://nowpayments.io/payment/?iid=4696682747', 
+          vip: 'https://nowpayments.io/payment/?iid=5638459586'
+        };
+        
+        // Открываем ссылку для оплаты в новом окне
+        window.open(planUrls[plan], '_blank');
+        subscribeModal.close();
+      });
+    });
+
+    // --- Boot ---
+    if(state.loggedIn) {
+      showAppScreen();
+      updateLanguage(state.language);
+      requestAnimationFrame(tick);
+    } else {
+      showAuthScreen();
+      updateLanguage(state.language);
+    }
+  </script>
+</body>
+</html>
